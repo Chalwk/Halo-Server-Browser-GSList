@@ -17,7 +17,7 @@ A lightweight, server browser for **Halo: Custom Edition** (and other Halo title
 1. **Clone or download** this repository.
 2. **Download `gslist.exe`** from Luigi Auriemma's website:  
    [https://aluigi.altervista.org/papers.htm#gslist](https://aluigi.altervista.org/papers.htm#gslist)  
-   (look for `Gslist 0.8.11a` - clicking this will download `gslist.zip` - extract it.
+   (look for `Gslist 0.8.11a`) - clicking this will download `gslist.zip` - extract it.
 3. **Place `gslist.exe`** in the same folder as `server.py` (or somewhere in your `PATH`).
 4. **Run the Python server**:
 

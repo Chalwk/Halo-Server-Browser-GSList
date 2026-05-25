@@ -1,29 +1,23 @@
 # Halo-Server-Browser (using GSList)
 
-A lightweight, server browser for **Halo: Custom Edition** (and other Halo titles) that uses Luigi Auriemma's `gslist` too to query the master server.
+A lightweight, server browser for **Halo: Custom Edition** (and other Halo titles) that uses Luigi Auriemma's `gslist` tool to query the master server.
 
 ## Features
 
-- Fetch live server list from any Gamespy master server
+- Fetch live server list from Halo: Beta, Halo: Trial, Halo: Trial (Mac), Halo: Mac, Halo: Combat Evolved (PC) Halo: Custom Edition
 - Filter by server name, map, game type, password protection
 - Sort by ping, player count, name, or map
 - View current players on a server (detailed query)
 - Display server rules / settings
-- Fast local web UI - no extra setup, runs on Python
-- Built-in caching of server details (60 seconds)
 
-## Requirements
+## Installation
 
-- **Windows** (the tool uses `gslist.exe` - a Windows executable)
-- **Python 3.6+** (no external libraries needed)
-- **gslist.exe** - download from the [official gslist page](https://aluigi.altervista.org/papers.htm#gslist)
-
-## Installation & Setup
+**Requirements:** Windows, Python 3.6+, and `gslist.exe`.
 
 1. **Clone or download** this repository.
 2. **Download `gslist.exe`** from Luigi Auriemma's website:  
    [https://aluigi.altervista.org/papers.htm#gslist](https://aluigi.altervista.org/papers.htm#gslist)  
-   (look for the Windows binary, e.g., `gslist_0_8_9.zip`)
+   (look for `Gslist 0.8.11a` - clicking this will download `gslist.zip` - extract it.
 3. **Place `gslist.exe`** in the same folder as `server.py` (or somewhere in your `PATH`).
 4. **Run the Python server**:
 
@@ -39,7 +33,7 @@ That's it! The server will show the Halo server browser interface.
 
 ### Main view
 
-- Click **Refresh Servers** to fetch the latest server list from the master server.
+- Click **Refresh Servers** to fetch the latest server list from the master server (takes a few seconds).
 - Use the **filters** (name, map, game type, password) to narrow down the list.
 - **Sort** by clicking the table headers or using the sort dropdown.
 

@@ -1,0 +1,619 @@
+<!-- Copyright (c) 2026 Jericho Crosby (Chalwk). Licensed under the GPL License. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPCLib - Halo Server Browser</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e2f;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-top: 0;
+            color: #ffaa44;
+            border-bottom: 2px solid #ffaa44;
+            display: inline-block;
+        }
+
+        .controls, .params {
+            background: #2a2a3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .params {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .param-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .param-row label {
+            width: 100px;
+            font-weight: bold;
+        }
+
+        .param-row input, .param-row select {
+            background: #2d2d3a;
+            border: 1px solid #5a5a70;
+            color: #f0f0f0;
+            padding: 6px 10px;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            background: #3a6ea5;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #2c5380;
+            transform: scale(1.02);
+        }
+
+        .status {
+            font-family: monospace;
+            background: #0f0f17;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #aaffaa;
+        }
+
+        .filter-box {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .filter-box input, .filter-box select {
+            background: #2d2d3a;
+            border: 1px solid #5a5a70;
+            color: #f0f0f0;
+            padding: 6px 10px;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #252536;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        th {
+            background: #3a3a4e;
+            padding: 10px 8px;
+            text-align: left;
+            cursor: pointer;
+            border-bottom: 2px solid #5f5f7a;
+        }
+
+        th:hover {
+            background: #4e4e6a;
+        }
+
+        td {
+            padding: 8px 8px;
+            border-bottom: 1px solid #3a3a4e;
+        }
+
+        tr:hover {
+            background: #323246;
+        }
+
+        .locked {
+            color: #ffaa66;
+            font-weight: bold;
+        }
+
+        .unlocked {
+            color: #88ff88;
+        }
+
+        .ping-good {
+            color: #88ff88;
+        }
+
+        .ping-ok {
+            color: #ffcc66;
+        }
+
+        .ping-bad {
+            color: #ff8866;
+        }
+
+        .scrollable {
+            max-height: 60vh;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            text-align: center;
+            color: #999;
+        }
+
+        .player-btn {
+            background: #4a6e8c;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .player-btn:hover {
+            background: #2c5380;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #2a2a3c;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+            border: 2px solid #5a5a70;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #5a5a70;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #ffaa44;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .player-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .player-list li {
+            padding: 8px;
+            border-bottom: 1px solid #3a3a4e;
+        }
+
+        .rules-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rules-table td {
+            padding: 6px;
+            border: 1px solid #3a3a4e;
+        }
+
+        .rules-table td:first-child {
+            font-weight: bold;
+            width: 40%;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>Halo Server Browser - (Using GSList)</h1>
+
+<div class="params">
+    <div class="param-row">
+        <label>Master server (-x):</label>
+        <input id="masterServer" type="text" value="34.197.71.170:28910">
+    </div>
+    <div class="param-row">
+        <label>Game preset:</label>
+        <select id="gamePreset">
+            <option value="halo|QW88cv">Halo Beta</option>
+            <option value="halod|yG3d9w">Halo Demo</option>
+            <option value="halomacd|e4Rd9J">Halo Demo (Mac)</option>
+            <option value="halomac|e4Rd9J">Halo Mac</option>
+            <option selected value="halom|e4Rd9J">Halo Custom Edition</option>
+            <option value="halor|e4Rd9J">Halo: Combat Evolved (PC)</option>
+        </select>
+    </div>
+    <div class="param-row">
+        <label>Game name (-n):</label>
+        <input id="gameName" type="text" value="halom">
+    </div>
+    <div class="param-row">
+        <label>Game key (-Y):</label>
+        <input id="gameKey" type="text" value="halom e4Rd9J">
+    </div>
+    <div class="param-row">
+        <label>Query type (-Q):</label>
+        <input id="queryType" style="width:80px" type="text" value="8">
+        <span style="font-size:12px; color:#aaa;">(8 = full server details)</span>
+    </div>
+</div>
+
+<div class="controls">
+    <button id="refreshBtn">🔄 Refresh Servers</button>
+    <div class="status" id="statusMsg">Ready. Click Refresh to query master server.</div>
+</div>
+
+<div class="filter-box">
+    <label>🔍 Filter by name/map:</label>
+    <input id="nameFilter" placeholder="Server name or map..." type="text">
+    <label>🎮 Game Type:</label>
+    <select id="gameTypeFilter">
+        <option value="">All</option>
+        <option value="CTF">CTF</option>
+        <option value="Slayer">Slayer</option>
+        <option value="Race">Race</option>
+        <option value="King">King</option>
+        <option value="Oddball">Oddball</option>
+    </select>
+    <label>🔒 Password:</label>
+    <select id="pwdFilter">
+        <option value="">Any</option>
+        <option value="0">No Password</option>
+        <option value="1">Password Protected</option>
+    </select>
+    <label>📊 Sort by:</label>
+    <select id="sortBy">
+        <option value="ping">Ping (lowest first)</option>
+        <option value="players">Players (full first)</option>
+        <option value="hostname">Server Name</option>
+        <option value="map">Map Name</option>
+    </select>
+</div>
+
+<div class="scrollable">
+    <table id="serverTable">
+        <thead>
+        <tr>
+            <th>🏠 Server Name</th>
+            <th>🗺️ Map</th>
+            <th>🎯 Game Type</th>
+            <th>👥 Players</th>
+            <th>📶 Ping</th>
+            <th>🔐 Pass</th>
+            <th>🌐 IP:Port</th>
+            <th>📋 Details</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <tr>
+            <td colspan="8" style="text-align:center;">No data. Click Refresh.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="footer">Copyright (c) 2026. Jericho Crosby (Chalwk) · Halo Server Browser</div>
+
+<div class="modal" id="playerModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3 id="playerModalTitle">Player List</h3>
+            <button class="close-modal" onclick="closePlayerModal()">&times;</button>
+        </div>
+        <div id="playerModalBody">
+            <div class="loading-spinner"></div>
+            <p>Loading player data...</p></div>
+    </div>
+</div>
+<div class="modal" id="rulesModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3 id="rulesModalTitle">Server Rules</h3>
+            <button class="close-modal" onclick="closeRulesModal()">&times;</button>
+        </div>
+        <div id="rulesModalBody">
+            <div class="loading-spinner"></div>
+            <p>Loading server rules...</p></div>
+    </div>
+</div>
+
+<script>
+    let servers = [];
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function (m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function updateGameFromPreset() {
+        const preset = document.getElementById("gamePreset").value;
+        const [gameName, gameKey] = preset.split('|');
+        document.getElementById("gameName").value = gameName;
+        document.getElementById("gameKey").value = gameName + " " + gameKey;
+    }
+
+    function parseServerLine(line) {
+        const firstSpace = line.indexOf(' ');
+        if (firstSpace === -1) return null;
+        const ipPort = line.substring(0, firstSpace).trim();
+        let rest = line.substring(firstSpace + 1).trim();
+        if (!rest.startsWith('\\')) return null;
+        rest = rest.substring(1);
+        const parts = rest.split('\\');
+        const data = {ipPort: ipPort};
+        for (let i = 0; i < parts.length - 1; i += 2) {
+            data[parts[i].toLowerCase()] = parts[i + 1];
+        }
+        if (!data.hostname) return null;
+        return {
+            ipPort: ipPort,
+            ip: ipPort.split(':')[0],
+            port: ipPort.split(':')[1] || '2302',
+            hostname: data.hostname || "Unknown",
+            mapname: data.mapname || "unknown",
+            gametype: data.gametype || "?",
+            gamevariant: data.gamevariant || "",
+            numplayers: parseInt(data.numplayers) || 0,
+            maxplayers: parseInt(data.maxplayers) || 0,
+            password: (data.password === "1"),
+            ping: parseInt(data.ping) || 999,
+        };
+    }
+
+    function parseOutput(rawText) {
+        const lines = rawText.split(/\r?\n/);
+        const list = [];
+        for (let line of lines) {
+            line = line.trim();
+            if (line.includes(':') && line.includes(' ') && line.includes('\\')) {
+                const s = parseServerLine(line);
+                if (s) list.push(s);
+            }
+        }
+        return list;
+    }
+
+    function renderTable() {
+        const filterName = document.getElementById("nameFilter").value.toLowerCase();
+        const filterGameType = document.getElementById("gameTypeFilter").value;
+        const filterPwd = document.getElementById("pwdFilter").value;
+        const sortKey = document.getElementById("sortBy").value;
+
+        let filtered = servers.filter(s => {
+            const matchName = s.hostname.toLowerCase().includes(filterName) || s.mapname.toLowerCase().includes(filterName);
+            if (!matchName) return false;
+            if (filterGameType && s.gametype !== filterGameType) return false;
+            if (filterPwd !== "") {
+                const pwdMatch = (filterPwd === "1") ? s.password : !s.password;
+                if (!pwdMatch) return false;
+            }
+            return true;
+        });
+
+        filtered.sort((a, b) => {
+            if (sortKey === "ping") return a.ping - b.ping;
+            if (sortKey === "players") return (b.numplayers / (b.maxplayers || 100)) - (a.numplayers / (a.maxplayers || 100));
+            if (sortKey === "hostname") return a.hostname.localeCompare(b.hostname);
+            if (sortKey === "map") return a.mapname.localeCompare(b.mapname);
+            return 0;
+        });
+
+        const tbody = document.getElementById("tableBody");
+        while (tbody.rows.length > 0) tbody.deleteRow(0);
+        if (filtered.length === 0) {
+            const row = tbody.insertRow();
+            const cell = row.insertCell(0);
+            cell.colSpan = 8;
+            cell.textContent = "No servers match filters or no data available.";
+            cell.style.textAlign = "center";
+            return;
+        }
+        for (const s of filtered) {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<strong>${escapeHtml(s.hostname)}</strong><br><span style="font-size:11px;">${escapeHtml(s.gamevariant)}</span>`;
+            row.insertCell(1).innerHTML = `🗺️ ${escapeHtml(s.mapname)}`;
+            row.insertCell(2).innerHTML = `<span style="background:#3a3a55;padding:2px 8px;border-radius:12px;">${escapeHtml(s.gametype)}</span>`;
+            row.insertCell(3).innerHTML = `<b>${s.numplayers} / ${s.maxplayers}</b>`;
+            const pingClass = s.ping <= 150 ? "ping-good" : (s.ping <= 300 ? "ping-ok" : "ping-bad");
+            row.insertCell(4).innerHTML = `<span class="${pingClass}">${s.ping} ms</span>`;
+            row.insertCell(5).innerHTML = s.password ? "<span class='locked'>🔒 Yes</span>" : "<span class='unlocked'>🔓 No</span>";
+            row.insertCell(6).innerHTML = `<span style="font-family:monospace;">${escapeHtml(s.ipPort)}</span>`;
+            row.insertCell(7).innerHTML = `<button class="player-btn" onclick="showPlayerList('${s.ipPort}', '${escapeHtml(s.hostname)}')">👥 Players</button>
+                                            <button class="player-btn" onclick="showServerRules('${s.ipPort}', '${escapeHtml(s.hostname)}')">⚙️ Rules</button>`;
+        }
+    }
+
+    async function showPlayerList(ipPort, serverName) {
+        const modal = document.getElementById('playerModal');
+        const title = document.getElementById('playerModalTitle');
+        const body = document.getElementById('playerModalBody');
+        title.innerHTML = `👥 Players on ${escapeHtml(serverName)}`;
+        body.innerHTML = '<div class="loading-spinner"></div><p>Loading player data...</p>';
+        modal.style.display = 'flex';
+        try {
+            const response = await fetch('/api/server_details', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ip_port: ipPort})
+            });
+            const data = await response.json();
+            if (data.details && data.details.players && data.details.players.length > 0) {
+                let playersHtml = '<ul class="player-list">';
+                data.details.players.forEach(player => playersHtml += `<li>${escapeHtml(player)}</li>`);
+                playersHtml += '</ul>';
+                body.innerHTML = playersHtml;
+            } else {
+                body.innerHTML = '<p>No players currently on this server.</p><pre style="font-size:10px;margin-top:10px;">Raw response:<br>' + escapeHtml(JSON.stringify(data.details, null, 2)) + '</pre>';
+            }
+        } catch (err) {
+            body.innerHTML = `<p>Error loading players: ${err.message}</p>`;
+        }
+    }
+
+    async function showServerRules(ipPort, serverName) {
+        const modal = document.getElementById('rulesModal');
+        const title = document.getElementById('rulesModalTitle');
+        const body = document.getElementById('rulesModalBody');
+        title.innerHTML = `⚙️ Server Rules for ${escapeHtml(serverName)}`;
+        body.innerHTML = '<div class="loading-spinner"></div><p>Loading server rules...</p>';
+        modal.style.display = 'flex';
+        try {
+            const response = await fetch('/api/server_details', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ip_port: ipPort})
+            });
+            const data = await response.json();
+            if (data.details && data.details.rules && Object.keys(data.details.rules).length > 0) {
+                let rulesHtml = '<table class="rules-table">';
+                for (const [key, value] of Object.entries(data.details.rules)) {
+                    rulesHtml += `<tr><td>${escapeHtml(key)}</td><td>${escapeHtml(value)}</td></tr>`;
+                }
+                rulesHtml += '</table>';
+                body.innerHTML = rulesHtml;
+            } else {
+                body.innerHTML = '<p>No additional server rules available.</p>';
+            }
+        } catch (err) {
+            body.innerHTML = `<p>Error loading rules: ${err.message}</p>`;
+        }
+    }
+
+    function closePlayerModal() {
+        document.getElementById('playerModal').style.display = 'none';
+    }
+
+    function closeRulesModal() {
+        document.getElementById('rulesModal').style.display = 'none';
+    }
+
+    async function refreshServers() {
+        const btn = document.getElementById("refreshBtn");
+        const oldText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "⏳ Running...";
+        const statusDiv = document.getElementById("statusMsg");
+        try {
+            const master = document.getElementById("masterServer").value.trim();
+            const game = document.getElementById("gameName").value.trim();
+            const key = document.getElementById("gameKey").value.trim();
+            const qtype = document.getElementById("queryType").value.trim();
+
+            const response = await fetch('/api/run', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({master, game, key, qtype})
+            });
+            const data = await response.json();
+            if (data.error) {
+                statusDiv.innerHTML = `❌ Server error: ${data.error}`;
+                servers = [];
+            } else if (data.servers) {
+                servers = data.servers;
+                statusDiv.innerHTML = `✅ Found ${servers.length} servers.`;
+            } else if (data.output) {
+                servers = parseOutput(data.output);
+                statusDiv.innerHTML = `✅ Found ${servers.length} servers.`;
+            } else {
+                servers = [];
+                statusDiv.innerHTML = "⚠️ No output from GSList.";
+            }
+            renderTable();
+        } catch (err) {
+            statusDiv.innerHTML = `❌ Error: ${err.message}`;
+            servers = [];
+            renderTable();
+        } finally {
+            btn.disabled = false;
+            btn.innerText = oldText;
+        }
+    }
+
+    window.onload = () => {
+        document.getElementById("refreshBtn").onclick = refreshServers;
+        document.getElementById("nameFilter").onkeyup = renderTable;
+        document.getElementById("gameTypeFilter").onchange = renderTable;
+        document.getElementById("pwdFilter").onchange = renderTable;
+        document.getElementById("sortBy").onchange = renderTable;
+        document.getElementById("gamePreset").onchange = () => {
+            updateGameFromPreset();
+        };
+        updateGameFromPreset();
+
+        window.onclick = function (event) {
+            if (event.target === document.getElementById('playerModal')) closePlayerModal();
+            if (event.target === document.getElementById('rulesModal')) closeRulesModal();
+        };
+
+        refreshServers();
+    };
+</script>
+</body>
+</html>
